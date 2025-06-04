@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { db } from "./firebase";
+import NovoOnibus from './pages/NovoOnibus.jsx';
 import {
   collection,
   onSnapshot,
