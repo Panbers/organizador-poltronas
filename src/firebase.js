@@ -1,5 +1,8 @@
+// Configuração do Firebase e exportação do Firestore e Auth para usar no projeto
+
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBtXxZOe9bAwHCvq6wQb5FAVAxDlU5C9H0",
@@ -11,7 +14,14 @@ const firebaseConfig = {
   appId: "1:471852527829:web:2657b1cb98bee0f0cd725c"
 };
 
+
+// Inicializa o app Firebase
 const app = initializeApp(firebaseConfig);
+
+// Exporta o banco de dados Firestore
 const db = getFirestore(app);
 
-export { db };
+// Exporta o sistema de autenticação Firebase
+const auth = getAuth(app);
+
+export { db, auth };
