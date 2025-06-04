@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import { db } from "./firebase";
+import {
+  collection,
+  onSnapshot,
+  setDoc,
+  doc
+} from "firebase/firestore";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const totalPoltronas = 40;
+  const [poltronas, setPoltronas] = useState(Array(totalPoltronas).fill(false));
+
+  const colecao = collection(db, "poltronas");
+
+  useEffect(() => {
+    const unsub = onSnapshot(colecao, (snapshot) => {
+      const novaLista = Array(totalPoltronas).fill(false);
+      snapshot.forEach((doc) => {
+        const i = parseInt(doc.id);
+        novaLista[i] = doc.data().vendida;
+      });
+      setPoltronas(novaLista);
+    });
+
+    return () => unsub();
+  }, []);
+
+  const alternarStatus = async (index) => {
+    const novaLista = [...poltronas];
+    novaLista[index] = !novaLista[index];
+    setPoltronas(novaLista);
+
+    await setDoc(doc(db, "poltronas", index.toString()), {
+      vendida: novaLista[index],
+    });
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <h1>Organizador de Poltronas</h1>
+      <div className="grid">
+        {poltronas.map((vendida, index) => (
+          <button
+            key={index}
+            className={`poltrona ${vendida ? "vendida" : ""}`}
+            onClick={() => alternarStatus(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
